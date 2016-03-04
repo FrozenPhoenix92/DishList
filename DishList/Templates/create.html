@@ -1,0 +1,26 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title">Новое блюдо</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-2">
+            Название
+        </div>
+        <div class="col-md-7">
+            <input class="form-control" type="text" ng-model="Title" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            Описание
+        </div>
+        <div class="col-md-8">
+            <input class="form-control" type="text" ng-model="Description" />
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>
+

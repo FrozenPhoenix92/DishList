@@ -1,0 +1,32 @@
+﻿<button type="button" class="btn btn-link" ng-click="openCreate()">Добавить новое блюдо</button>
+<table class="table">
+    <tr>
+        <th>
+            <a href="" ng-click="sort('Title')">Название</a>
+            <i class="glyphicon" ng-class="{'glyphicon-chevron-up' : isSortUp('Title'), 'glyphicon-chevron-down' : isSortDown('Title')}"></i>
+        </th>
+        <th>
+            <a href="" ng-click="sort('Description')">Описание</a>
+            <i class="glyphicon" ng-class="{'glyphicon-chevron-up' : isSortUp('Description'), 'glyphicon-chevron-down' : isSortDown('Description')}"></i>
+        </th>
+        <th></th>
+    </tr>
+
+    <tr>
+        <td><input type="text" ng-model="dishTitle" /></td>
+        <td><input type="text" ng-model="dishDescription" /></td>
+        <td></td>
+    </tr>
+    <tr ng-repeat="dish in dishes | filter:{Title:dishTitle, Description:dishDescription} | orderBy:sortField:reverse">
+        <td>
+            {{dish.Title}}
+        </td>
+        <td>
+            {{dish.Description}}
+        </td>
+        <td>
+            <button type="button" class="btn btn-link" ng-click="openUpdate(dish)">Изменить</button>
+            <button type="button" class="btn btn-link" ng-click="openDelete(dish)">Удалить</button>
+        </td>
+    </tr>
+</table>
