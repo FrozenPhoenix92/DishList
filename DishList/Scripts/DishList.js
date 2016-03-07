@@ -1,82 +1,91 @@
-﻿var dishlistApp = angular.module('dishlistApp', ['ngRoute', 'ui.bootstrap']);
+﻿var dishlistApp = angular.module('dishlistApp', ['ngRoute', 'ui.bootstrap', 'ngResource', 'ui.router']);
 
-dishlistApp.config(['$routeProvider', function($routeProvide) {
-    $routeProvide
-        .when('/dishes/create', {
-            templateUrl: '',
-            controller: 'CreateCtrl'
-        })
-        .when('/dishes/update/:dishId', {
-            templateUrl: '',
-            controller: 'UpdateCtrl'
-        })
-        .when('/dishes/delete/:dishId', {
-            templateUrl: '',
-            controller: 'DeleteCtrl'
-        })
-        .otherwise({
-            redirectTo: '/'
-        });
-}]);
+var parentScope;
 
-dishlistApp.controller("DishesCtrl", function ($scope, $http, $location, $uibModal) {
-    $http.get("Home/List").success(function(data, status, headers, config) {
-        $scope.dishes = data;
+dishlistApp.factory("dishesService", function ($resource) {
+    return $resource("Home", {}, {
+        query: { method: "GET", isArray: true, url: "/Home/List" },
+        create: { method: "GET", url: "/Home/Create" },
+        get: { method: "GET", url: "/Home/Get/:Id" },
+        update: { method: "GET", url: "/Home/Update/:Id" },
+        remove: { method: "GET", url: "/Home/Delete/:Id" }
     });
+});
 
-    // Добавление нового элемента
-    $scope.openCreate = function() {
-        var modalInstance = $uibModal.open({
-            animation: true,
-            templateUrl: '/Templates/Create',
-            controller: 'ModalInstanceCreateCtrl'
-        });
+dishlistApp.config(function ($provide, $stateProvider, $urlRouterProvider, $locationProvider) {
 
-        modalInstance.result.then(function (resultDish) {
-            $scope.dishes.push(resultDish);
-        });
-    };
+    $urlRouterProvider.otherwise("/dishes");
 
-    // Изменение существующего элемента
-    $scope.openUpdate = function (dish) {
-        $scope.dish = dish;
-
-        var modalInstance = $uibModal.open({
-            animation: true,
-            templateUrl: '/Templates/Create',
-            controller: 'ModalInstanceUpdateCtrl',
-            resolve: {
-                dish: $scope.dish
+    $stateProvider
+        .state('dishes', {
+            url: "/dishes",
+            templateUrl: "/"
+        })
+        // Добавление нового элемента
+        .state("dishes.add", {
+            url: "/add",
+            parent: "dishes",
+            onEnter: function($stateParams, $state, $uibModal, $resource) {
+                $uibModal.open({
+                    animation: true,
+                    templateUrl: '/Templates/Create',
+                    controller: 'ModalInstanceCreateCtrl'
+                }).result.then(function(resultDish) {
+                    parentScope.dishes.push(resultDish);
+                });
+            }
+        })
+        // Изменение существующего элемента
+        .state("dishes.update", {
+            url: "/update/:dishId",
+            parent: "dishes",
+            onEnter: function($stateParams, $state, $uibModal, $resource) {
+                $uibModal.open({
+                    animation: true,
+                    templateUrl: '/Templates/Create',
+                    controller: 'ModalInstanceUpdateCtrl',
+                    resolve: {
+                        dish: parentScope.dish
+                    }
+                }).result.then(function(resultDish) {
+                    parentScope.dishes.forEach(function (item, i, arr) {
+                        if (item.Id === resultDish.Id)
+                            parentScope.dishes[i] = resultDish;
+                    });
+                });
+            }
+        })
+        // Удаление существующего элемента
+        .state("dishes.delete", {
+            url: "/delete/:dishId",
+            parent: "dishes",
+            onEnter: function($stateParams, $state, $uibModal, $resource) {
+                $uibModal.open({
+                    animation: true,
+                    templateUrl: '/Templates/Delete',
+                    controller: 'ModalInstanceDeleteCtrl',
+                    resolve: {
+                        dish: parentScope.dish
+                    }
+                }).result.then(function (resultDish) {
+                    parentScope.dishes.forEach(function (item, i, arr) {
+                        if (item.Id === resultDish.Id)
+                            parentScope.dishes.splice(i, 1);
+                    });
+                });
             }
         });
+});
 
-        modalInstance.result.then(function (resultDish) {
-            $scope.dishes.forEach(function(item, i, arr) {
-                if (item.Id === resultDish.Id)
-                    $scope.dishes[i] = resultDish;
-            });
-        });
-    };
+var DishesCtrl = dishlistApp.controller("DishesCtrl", function ($state, $scope, $http, $location, $uibModal, dishesService) {
 
-    // Удаление существующего элемента
-    $scope.openDelete = function (dish) {
+    parentScope = $scope;
+
+    $scope.dishes = dishesService.query();
+
+    // Изменение текущего элемента
+    $scope.selectCurrentDish = function (dish) {
         $scope.dish = dish;
-
-        var modalInstance = $uibModal.open({
-            animation: true,
-            templateUrl: '/Templates/Delete',
-            controller: 'ModalInstanceDeleteCtrl',
-            resolve: {
-                dishId: $scope.dish.Id
-            }
-        });
-
-        modalInstance.result.then(function (dishId) {
-            $scope.dishes.forEach(function (item, i, arr) {
-                if (item.Id === dishId)
-                    $scope.dishes.splice(i, 1);
-            });
-        });
     };
 
     // Сортировка
@@ -98,17 +107,13 @@ dishlistApp.controller("DishesCtrl", function ($scope, $http, $location, $uibMod
     };
 });
 
-dishlistApp.controller("ModalInstanceCreateCtrl", function ($scope, $http, $location, $uibModalInstance) {
+dishlistApp.controller("ModalInstanceCreateCtrl", function ($scope, $http, $rootScope, $location, $uibModalInstance, dishesService) {
     $scope.Title = "";
     $scope.Description = "";
 
     $scope.ok = function () {
-        $http.get("Home/Create", {
-                 params: { Title: $scope.Title, Description: $scope.Description }
-            })
-            .success(function(data, status, headers, config) {
-                $uibModalInstance.close(data);
-        });
+        dishesService.create({ Title: $scope.Title, Description: $scope.Description })
+            .$promise.then(function (data) { $uibModalInstance.close(data); });
     };
 
     $scope.cancel = function () {
@@ -116,17 +121,13 @@ dishlistApp.controller("ModalInstanceCreateCtrl", function ($scope, $http, $loca
     };
 });
 
-dishlistApp.controller("ModalInstanceUpdateCtrl", function ($scope, $http, $location, $uibModalInstance, dish) {
+dishlistApp.controller("ModalInstanceUpdateCtrl", function ($scope, $http, $location, $uibModalInstance, dish, dishesService) {
     $scope.Title = dish.Title;
     $scope.Description = dish.Description;
 
     $scope.ok = function () {
-        $http.get("Home/Update", {
-                 params: { Id: dish.Id, Title: $scope.Title, Description: $scope.Description }
-            })
-            .success(function (data, status, headers, config) {
-                $uibModalInstance.close(data);
-            });
+        dishesService.update({ Id: dish.Id, Title: $scope.Title, Description: $scope.Description })
+            .$promise.then(function (data) { $uibModalInstance.close(data); });
     };
 
     $scope.cancel = function () {
@@ -134,14 +135,10 @@ dishlistApp.controller("ModalInstanceUpdateCtrl", function ($scope, $http, $loca
     };
 });
 
-dishlistApp.controller("ModalInstanceDeleteCtrl", function ($scope, $http, $location, $uibModalInstance, dishId) {
-    $scope.ok = function() {
-        $http.get("Home/Delete", {
-                params: { Id: dishId }
-            })
-            .success(function(data, status, headers, config) {
-                $uibModalInstance.close(data);
-            });
+dishlistApp.controller("ModalInstanceDeleteCtrl", function ($scope, $http, $location, $uibModalInstance, dish, dishesService) {
+    $scope.ok = function () {
+        dishesService.remove({ Id: dish.Id })
+            .$promise.then(function (data) { $uibModalInstance.close(data); });
     };
 
     $scope.cancel = function () {

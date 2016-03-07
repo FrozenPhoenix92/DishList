@@ -48,7 +48,7 @@ namespace DishList.Controllers
             if (dish == null) return Json(false, JsonRequestBehavior.AllowGet);
             _dishContext.Dishes.Remove(dish);
             _dishContext.SaveChanges();
-            return Json(id, JsonRequestBehavior.AllowGet);
+            return Json(dish, JsonRequestBehavior.AllowGet);
         }
     }
 }

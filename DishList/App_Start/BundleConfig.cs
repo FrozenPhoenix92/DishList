@@ -30,6 +30,8 @@ namespace DishList
                       "~/Scripts/angular-animate.js",
                       "~/Scripts/angular-touch.js",
                       "~/Scripts/angular-ui/ui-bootstrap-tpls.js",
+                      "~/Scripts/angular-resource.js",
+                      "~/Scripts/angular-ui-router.js",
                       "~/Scripts/DishList.js"));
 
 

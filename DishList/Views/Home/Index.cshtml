@@ -1,4 +1,4 @@
-﻿<button type="button" class="btn btn-link" ng-click="openCreate()">Добавить новое блюдо</button>
+﻿<button type="button" class="btn btn-link" ui-sref="dishes.add">Добавить новое блюдо</button>
 <table class="table">
     <tr>
         <th>
@@ -25,8 +25,8 @@
             {{dish.Description}}
         </td>
         <td>
-            <button type="button" class="btn btn-link" ng-click="openUpdate(dish)">Изменить</button>
-            <button type="button" class="btn btn-link" ng-click="openDelete(dish)">Удалить</button>
+            <button type="button" class="btn btn-link" ng-click="selectCurrentDish(dish)" ui-sref="dishes.update({dishId: dish.Id})">Изменить</button>
+            <button type="button" class="btn btn-link" ng-click="selectCurrentDish(dish)" ui-sref="dishes.delete({dishId: dish.Id})">Удалить</button>
         </td>
     </tr>
 </table>
