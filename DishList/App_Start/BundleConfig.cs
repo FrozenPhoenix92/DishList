@@ -32,7 +32,9 @@ namespace DishList
                       "~/Scripts/angular-ui/ui-bootstrap-tpls.js",
                       "~/Scripts/angular-resource.js",
                       "~/Scripts/angular-ui-router.js",
-                      "~/Scripts/DishList.js"));
+                      "~/Scripts/main/app.js",
+                      "~/Scripts/main/controllers.js",
+                      "~/Scripts/main/models.js"));
 
 
             bundles.Add(new StyleBundle("~/Content/css").Include(

@@ -8,16 +8,10 @@ namespace DishList.Controllers
 {
     public class TemplatesController : Controller
     {
-        public ActionResult Create()
+        public ActionResult Index(string fileName)
         {
             Response.AddHeader("Content-Disposition", new System.Net.Mime.ContentDisposition { Inline = true, FileName = "index.htm" }.ToString());
-            return File(Server.MapPath("/Templates/") + "create.html", "text/plain");
-        }
-
-        public ActionResult Delete()
-        {
-            Response.AddHeader("Content-Disposition", new System.Net.Mime.ContentDisposition { Inline = true, FileName = "index.htm" }.ToString());
-            return File(Server.MapPath("/Templates/") + "delete.html", "text/plain");
+            return File(Server.MapPath("/Templates/") + fileName, "text/plain");
         }
     }
 }
