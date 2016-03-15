@@ -1,23 +1,45 @@
-﻿appModule.controller("DishesCtrl", function($state, $scope, $http, $location, $uibModal, dishesModel) {
+﻿function ConvertDishesModelToViewModel(dish) {
+    return {
+        Id: dish.Id,
+        Title: dish.Title,
+        Description: dish.Description
+    };
+}
 
-        $scope.dishes = dishesModel.query();
+function ConvertViewModelToDishesModel(dishesModel) {
+    return {
+        Id: dishesModel.Id,
+        Title: dishesModel.Title,
+        Description: dishesModel.Description
+    };
+}
 
-        $scope.$on("dishCreated", function (event, dishJson) {
-            $scope.dishes.push(JSON.parse(dishJson));
-        });
-        $scope.$on("dishUpdated", function (event, dishJson) {
-            var dish = JSON.parse(dishJson);
-            $scope.dishes.forEach(function (item, i, arr) {
-                if (item.Id === dish.Id)
-                    $scope.dishes[i] = dish;
+appModule.controller("DishesCtrl", function ($state, $scope, $http, $location, $uibModal, DishesModel) {
+    
+        $scope.$on("dishesList", function() {
+            $scope.dishes = [];
+            DishesModel.dishes.forEach(function (item, i, arr) {
+                $scope.dishes.push(ConvertDishesModelToViewModel(item));
             });
         });
-        $scope.$on("dishDeleted", function (event, dishIdJson) {
-            $scope.dishes.forEach(function (item, i, arr) {
-                if (item.Id === parseInt(dishIdJson))
+        $scope.$on("dishCreated", function(event, dish) {
+            $scope.dishes.push(ConvertDishesModelToViewModel(dish));
+        });
+        $scope.$on("dishUpdated", function (event, dish) {
+            var convertedDish = ConvertDishesModelToViewModel(dish);
+            $scope.dishes.forEach(function(item, i, arr) {
+                if (item.Id === convertedDish.Id)
+                    $scope.dishes[i] = convertedDish;
+            });
+        });
+        $scope.$on("dishDeleted", function(event, dishId) {
+            $scope.dishes.forEach(function(item, i, arr) {
+                if (item.Id === dishId)
                     $scope.dishes.splice(i, 1);
             });
         });
+
+        DishesModel.getList();
 
         // Сортировка
         $scope.sortField = undefined;
@@ -37,36 +59,38 @@
             return $scope.sortField === fieldName && $scope.reverse;
         };
     })
-    .controller("ModalInstanceCreateCtrl", function($scope, $http, $rootScope, $location, $uibModalInstance, dishesModel) {
-        $scope.Dish = new dishesModel();
+    .controller("ModalInstanceCreateCtrl", function ($scope, $http, $rootScope, $location, $uibModalInstance, DishesModel) {
+        $scope.Dish = { Title: "", Description: "" };
 
-        $scope.ok = function() {
-            dishesModel.create($scope.Dish)
-                .$promise.then(function(data) { $uibModalInstance.close(data); });
+        $scope.ok = function () {
+            DishesModel.create(ConvertViewModelToDishesModel($scope.Dish));
+            $uibModalInstance.close($scope.Dish);
         };
 
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
         };
     })
-    .controller("ModalInstanceUpdateCtrl", function($scope, $http, $location, $uibModalInstance, dishId, dishesModel) {
-        dishesModel.get({ Id: dishId }).$promise.then(function(data) {
-            $scope.Dish = data;
+    .controller("ModalInstanceUpdateCtrl", function ($scope, $http, $location, $uibModalInstance, dishId, DishesModel) {
+        $scope.$on("dishGet", function (event, dish) {
+            $scope.Dish = dish;
         });
 
-        $scope.ok = function() {
-            dishesModel.update($scope.Dish)
-                .$promise.then(function(data) { $uibModalInstance.close(data); });
+        DishesModel.get(dishId);
+
+        $scope.ok = function () {
+            DishesModel.update(ConvertViewModelToDishesModel($scope.Dish));
+            $uibModalInstance.close($scope.Dish);
         };
 
-        $scope.cancel = function() {
+        $scope.cancel = function () {
             $uibModalInstance.dismiss('cancel');
         };
     })
-    .controller("ModalInstanceDeleteCtrl", function($scope, $http, $location, $uibModalInstance, dishId, dishesModel) {
+    .controller("ModalInstanceDeleteCtrl", function ($scope, $http, $location, $uibModalInstance, dishId, DishesModel) {
         $scope.ok = function() {
-            dishesModel.remove({ Id: dishId })
-                .$promise.then(function(data) { $uibModalInstance.close(data); });
+            DishesModel.remove(dishId);
+            $uibModalInstance.close(dishId);
         };
 
         $scope.cancel = function() {

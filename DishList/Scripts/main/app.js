@@ -12,19 +12,19 @@
         // Добавление нового элемента
         .state("dishes.add", {
             url: "/add",
-            parent: "dishes",
             onEnter: function($stateParams, $state, $uibModal, $resource) {
                 $uibModal.open({
                     animation: true,
                     templateUrl: '/Templates/create.html',
                     controller: 'ModalInstanceCreateCtrl'
+                }).result.finally(function () {
+                    $state.go('^');
                 });
             }
         })
         // Изменение существующего элемента
         .state("dishes.update", {
             url: "/:dishId/update",
-            parent: "dishes",
             onEnter: function ($stateParams, $state, $uibModal, $resource) {
                 $uibModal.open({
                     animation: true,
@@ -33,13 +33,14 @@
                     resolve: {
                         dishId: parseInt($stateParams.dishId)
                     }
+                }).result.finally(function () {
+                    $state.go('^');
                 });
             }
         })
         // Удаление существующего элемента
         .state("dishes.delete", {
             url: "/:dishId/delete",
-            parent: "dishes",
             onEnter: function($stateParams, $state, $uibModal, $resource) {
                 $uibModal.open({
                     animation: true,
@@ -48,6 +49,8 @@
                     resolve: {
                         dishId: parseInt($stateParams.dishId)
                     }
+                }).result.finally(function () {
+                    $state.go('^');
                 });
             }
         });

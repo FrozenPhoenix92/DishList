@@ -7,10 +7,10 @@ using DishList.Models;
 
 namespace DishList.Controllers
 {
-    public class DishController : ApiController
+    public class DishesController : ApiController
     {
         private readonly DishContext _dishContext = new DishContext();
-        
+
         [HttpGet]
         public IEnumerable<Dish> List()
         {
