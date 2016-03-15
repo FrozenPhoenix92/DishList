@@ -18,7 +18,7 @@ appModule.controller("DishesCtrl", function ($scope, $uibModal, DishesModel) {
     
         $scope.$on("dishesList", function() {
             $scope.dishes = [];
-            DishesModel.dishes.forEach(function (item, i, arr) {
+            DishesModel.getDishes().forEach(function (item, i, arr) {
                 $scope.dishes.push(ConvertDishesModelToViewModel(item));
             });
         });
@@ -34,7 +34,7 @@ appModule.controller("DishesCtrl", function ($scope, $uibModal, DishesModel) {
             _.remove($scope.dishes, { Id: dishId });
         });
 
-        DishesModel.getList();
+        DishesModel.query();
 
         // Сортировка
         $scope.sortField = undefined;
@@ -67,7 +67,7 @@ appModule.controller("DishesCtrl", function ($scope, $uibModal, DishesModel) {
         };
     })
     .controller("ModalInstanceUpdateCtrl", function ($scope, $uibModalInstance, dishId, DishesModel) {
-        $scope.Dish = DishesModel.dishes[_.findIndex(DishesModel.dishes, {Id: dishId})];
+        $scope.Dish = DishesModel.getDishes()[_.findIndex(DishesModel.getDishes(), { Id: dishId })];
 
         $scope.ok = function () {
             DishesModel.update(ConvertViewModelToDishesModel($scope.Dish));
