@@ -1,8 +1,8 @@
 ﻿appModule.factory("Dish", function ($resource) {
-    return $resource("/api/dishes/:Id", {}, {
-        update: { method: "PUT", url: "/api/dishes/:Id" }
+    return $resource("/api/dishes/:Id", { id: '@Id' }, {
+        update: { method: "PUT" }
     });
-}).service("DishesModel", function ($resource, $rootScope, $http, Dish) {
+}).service("DishesModel", function ($resource, $rootScope, Dish) {
 
     var self = this;
 
@@ -15,21 +15,15 @@
         });
     };
 
-    this.get = function (dishId) {
-        Dish.get({ Id: dishId }).$promise.then(function (data) {
-            $rootScope.$broadcast("dishGet", data);
-        });
-    };
-
     this.create = function (dish) {
         Dish.save(dish).$promise.then(function (data) {
             self.dishes.push(data);
-            $rootScope.$broadcast("dishCreated", data);
+            $rootScope.$broadcast("dishCreated", data, self.dishes.length);
         });
     };
 
     this.update = function (dish) {
-        Dish.update({Id: dish.Id}, dish).$promise.then(function (data) {
+        Dish.update(dish).$promise.then(function (data) {
             $rootScope.$broadcast("dishUpdated", data);
         });
     };
