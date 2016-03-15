@@ -67,10 +67,7 @@ appModule.controller("DishesCtrl", function ($scope, $uibModal, DishesModel) {
         };
     })
     .controller("ModalInstanceUpdateCtrl", function ($scope, $uibModalInstance, dishId, DishesModel) {
-        DishesModel.dishes.forEach(function (item, i, arr) {
-            if (item.Id === dishId)
-                $scope.Dish = item;
-        });
+        $scope.Dish = DishesModel.dishes[_.findIndex(DishesModel.dishes, function (o) { return o.Id === dishId; })];
 
         $scope.ok = function () {
             DishesModel.update(ConvertViewModelToDishesModel($scope.Dish));
