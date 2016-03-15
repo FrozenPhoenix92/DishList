@@ -27,11 +27,11 @@ appModule.controller("DishesCtrl", function ($scope, $uibModal, DishesModel) {
         });
         $scope.$on("dishUpdated", function (event, dish) {
             var convertedDish = ConvertDishesModelToViewModel(dish);
-            var index = _.findIndex($scope.dishes, function (o) { return o.Id === convertedDish.Id; });
+            var index = _.findIndex($scope.dishes, {Id: convertedDish.Id});
             $scope.dishes[index] = convertedDish;
         });
         $scope.$on("dishDeleted", function(event, dishId) {
-            _.remove($scope.dishes, function(o) { return o.Id === dishId; });
+            _.remove($scope.dishes, { Id: dishId });
         });
 
         DishesModel.getList();
@@ -67,7 +67,7 @@ appModule.controller("DishesCtrl", function ($scope, $uibModal, DishesModel) {
         };
     })
     .controller("ModalInstanceUpdateCtrl", function ($scope, $uibModalInstance, dishId, DishesModel) {
-        $scope.Dish = DishesModel.dishes[_.findIndex(DishesModel.dishes, function (o) { return o.Id === dishId; })];
+        $scope.Dish = DishesModel.dishes[_.findIndex(DishesModel.dishes, {Id: dishId})];
 
         $scope.ok = function () {
             DishesModel.update(ConvertViewModelToDishesModel($scope.Dish));
